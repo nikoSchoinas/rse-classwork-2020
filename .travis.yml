@@ -7,7 +7,7 @@ install:
 # command to run tests
 script:
   - pytest --cov
-  branches:
-  only:
-  - main
-  - testing
+branches:
+only:
+- main
+- testing
