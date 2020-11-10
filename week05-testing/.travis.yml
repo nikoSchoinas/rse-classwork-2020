@@ -7,3 +7,7 @@ install:
 # command to run tests
 script:
   - pytest --cov
+# whitelist
+branches:
+  only:
+    - testing
