@@ -1,43 +1,23 @@
-from times import time_range, compute_overlap_time
 import pytest
+import yaml
+from times import compute_overlap_time, time_range
 
-""" def test_given_input():
-    large = time_range("2010-01-12 10:00:00", "2010-01-12 12:00:00")
-    short = time_range("2010-01-12 10:30:00", "2010-01-12 10:45:00", 2, 60)
-    result = compute_overlap_time(large,short)
-    expected = [('2010-01-12 10:30:00', '2010-01-12 10:37:00'), ('2010-01-12 10:38:00', '2010-01-12 10:45:00')]
-    assert result == expected
+with open("fixture.yaml", 'r') as yamlfile:
+    fixture = yaml.safe_load(yamlfile)
+    #print(fixture)
 
-def test_ranges_not_overlap():
-    large = time_range("2010-01-12 10:00:00", "2010-01-12 10:30:00")
-    short = time_range("2010-01-12 11:30:00", "2010-01-12 12:00:00", 2, 60)
-    result = compute_overlap_time(large,short)
-    expected = []
-    assert result == expected
+data_list = []
+for i in range(0, len(fixture)):
+    first_range = time_range(*list(fixture[i].values())[0]['time_range_1'])
+    second_range = time_range(*list(fixture[i].values())[0]['time_range_2'])
+    expected = [(start, stop) for start, stop in list(fixture[i].values())[0]['expected']]
+    data_list.append((first_range,second_range,expected))
 
-def test_ranges_with_intervals():
-    large = time_range("2010-01-12 10:00:00", "2010-01-12 12:00:00",8)
-    short = time_range("2010-01-12 10:30:00", "2010-01-12 11:00:00", 2)
-    result = compute_overlap_time(large,short)
-    expected = [('2010-01-12 10:30:00', '2010-01-12 10:45:00'),('2010-01-12 10:45:00', '2010-01-12 11:00:00')]
-    assert result == expected
+@pytest.mark.parametrize("first_range,second_range,expected", data_list)
+def test_time_range_overlap(first_range,second_range,expected):
+    assert compute_overlap_time(first_range,second_range) == expected
 
-def test_ranges_start_end(): 
-    large = time_range("2010-01-12 10:00:00", "2010-01-12 10:30:00")
-    short = time_range("2010-01-12 10:30:00", "2010-01-12 11:00:00")
-    result = compute_overlap_time(large,short)
-    expected = []
-    assert result == expected """
-
-def test_time_goes_backwards(): # this is the negative test
-    with pytest.raises(ValueError):
-        time_range("2010-01-12 10:15:00","2010-01-12 10:00:00")
-
-# parametrised test. This saves time and code
-@pytest.mark.parametrize("test_input,expected",[('compute_overlap_time(time_range("2010-01-12 10:00:00", "2010-01-12 10:30:00"),time_range("2010-01-12 11:30:00", "2010-01-12 12:00:00"))',[])
-                                               ,('compute_overlap_time(time_range("2010-01-12 10:00:00", "2010-01-12 12:00:00",8),time_range("2010-01-12 10:30:00", "2010-01-12 11:00:00",2))',[('2010-01-12 10:30:00', '2010-01-12 10:45:00'), ('2010-01-12 10:45:00', '2010-01-12 11:00:00')])
-                                               ,('compute_overlap_time(time_range("2010-01-12 10:00:00", "2010-01-12 10:30:00"),time_range("2010-01-12 10:30:00", "2010-01-12 11:00:00"))',[])
-                                               ,('compute_overlap_time(time_range("2010-01-12 10:00:00", "2010-01-12 12:00:00"),time_range("2010-01-12 10:30:00", "2010-01-12 10:45:00", 2, 60))',[('2010-01-12 10:30:00', '2010-01-12 10:37:00'), ('2010-01-12 10:38:00', '2010-01-12 10:45:00')])
-                                               ]) # the last row is a valid one.
-def test_eval(test_input,expected):
-    assert eval(test_input) == expected
+def test_negative_time_range():
+    with pytest.raises(ValueError) as e:
+        time_range("2010-01-12 10:00:00", "2010-01-12 09:30:00")
+        assert e.match("end_time should be later than start_time")
