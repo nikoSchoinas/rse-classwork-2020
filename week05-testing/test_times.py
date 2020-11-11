@@ -2,7 +2,7 @@ import pytest
 import yaml
 from times import compute_overlap_time, time_range
 
-with open("fixture.yaml", 'r') as yamlfile:
+with open("week05-testing/fixture.yaml", 'r') as yamlfile:
     fixture = yaml.safe_load(yamlfile)
     #print(fixture)
 
